@@ -1,15 +1,17 @@
+var path = require('path');
+
 module.exports = {
-  root: true,
-  parser: "babel-eslint",
-  parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module'
-  },
-  extends: 'eslint:recommended',
+  extends: [
+    require.resolve('ember-cli-eslint/coding-standard/ember-application.js')
+  ],
   env: {
-    'browser': true,
-    'node': true,
-    'es6': true
+    node: true,
+    browser: true,
+    es6: true
+  },
+  globals: {
+    requireNode: true,
+    uuid: true
   },
   rules: {
     'no-console': 0,
@@ -17,8 +19,4 @@ module.exports = {
     'one-var': ['error', 'never'],
     'indent': ['error', 2]
   },
-  globals: {
-    'requireNode': true,
-    'uuid': true
-  }
 };
