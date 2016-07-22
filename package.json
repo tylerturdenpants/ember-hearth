@@ -98,6 +98,7 @@
     "bluebird": "^3.4.1",
     "ember-cli": "^2.6.3",
     "jsonminify": "^0.4.1",
+    "mkdirp": "^0.5.1",
     "nedb": "^1.8.0",
     "node-dir": "^0.1.15",
     "node-uuid": "^1.4.7",
