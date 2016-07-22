@@ -18,23 +18,35 @@ export default Ember.Controller.extend({
 
     const ipc = this.get('ipc');
 
-    ipc.on('project-init-start', () => {
+    this.set('_projectInitStartListener', () => {
       this.set('installing', true);
     });
-
-    ipc.on('project-init-end', (ev, project) => {
+    this.set('_projectInitEndListener', ipc.deserializedCallback('project', (message, project) => {
       this.set('installing', false);
-      this.transitionToRoute('project.detail', this.get('store').peekRecord('project', project.data.id));
-    });
-
-    ipc.on('project-init-stdout', (ev, data) => {
+      this.transitionToRoute('project.detail', project);
+    }));
+    this.set('_projectInitStdout', (ev, data) => {
       this.set('stdout', this.get('stdout') + data);
       this.set('lastStdout', data);
     });
-
-    ipc.on('project-init-stderr', (ev, data) => {
+    this.set('_projectInitStderr', (ev, data) => {
       this.set('err', this.get('stdout') + data);
     });
+
+    ipc.on('project-init-start', this.get('_projectInitStartListener'));
+    ipc.on('project-init-end', this.get('_projectInitEndListener'));
+    ipc.on('project-init-stdout', this.get('_projectInitStdout'));
+    ipc.on('project-init-stderr', this.get('_projectInitStderr'));
+  },
+
+  destroy(){
+    this._super(...arguments);
+    const ipc = this.get('ipc');
+
+    ipc.off('project-init-start', this.get('_projectInitStartListener'));
+    ipc.off('project-init-end', this.get('_projectInitEndListener'));
+    ipc.off('project-init-stdout', this.get('_projectInitStdout'));
+    ipc.off('project-init-stderr', this.get('_projectInitStderr'));
   },
 
   actions: {

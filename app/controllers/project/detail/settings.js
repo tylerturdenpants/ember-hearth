@@ -30,7 +30,7 @@ export default Ember.Controller.extend({
 
       project.set('cli', cli);
 
-      this.get('ipc').trigger('hearth-update-project', this.get('store').serialize(project, {includeId: true}));
+      this.get('ipc').trigger('hearth-update-project', this.get('ipc').serialize('project', project));
     }
   }
 });

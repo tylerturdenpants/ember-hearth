@@ -11,7 +11,7 @@ export default DS.Model.extend({
   options: attr(),
   inTerm: attr('boolean'),
 
-  project: belongsTo('project'),
+  project: belongsTo('project', {async: true}),
   running: false,
   succeeded: false,
   failed: false,

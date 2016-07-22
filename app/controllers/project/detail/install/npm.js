@@ -10,8 +10,7 @@ export default Ember.Controller.extend({
 
   searchResults: [],
 
-  triggerProjectReload(ev, cmd){
-    let command = this.get('store').peekRecord('command', cmd.id);
+  triggerProjectReload(ev, command){
     if (command.get('succeeded') &&
       ['install', 'uninstall'].indexOf(command.get('name')) !== -1 &&
       command.get('bin') === 'npm') {
@@ -21,11 +20,13 @@ export default Ember.Controller.extend({
 
   init(){
     this._super(...arguments);
-    this.get('ipc').on('cmd-close', this, this.triggerProjectReload);
+    var ipc = this.get('ipc');
+    this.set('_cmdCloseListener', ipc.deserializedCallback('command', this.triggerProjectReload.bind(this)));
+    ipc.on('cmd-close', this.get('_cmdCloseListener'));
   },
 
   destroy(){
-    this.get('ipc').on('cmd-close', this, this.triggerProjectReload);
+    this.get('ipc').off('cmd-close', this.get('_cmdCloseListener'));
     this._super(...arguments);
   },
 

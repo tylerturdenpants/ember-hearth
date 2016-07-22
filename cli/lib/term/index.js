@@ -4,14 +4,15 @@ const spawn = require('child_process').spawn;
 const cp = require('child_process');
 const fs = require('fs');
 const temp = require('temp');
-const quickTemp = require('quick-temp');
+
+temp.track();
 
 class Term {
   constructor(){
 
   }
   spawn(bin, args, spawnOptions) {
-    console.log('spawning', bin, args, spawnOptions);
+    console.log('term.spawn', bin, args, spawnOptions);
     return spawn(bin, args, spawnOptions);
   }
 
@@ -24,16 +25,12 @@ class Term {
   }
 
   buildCommandScript(bin, args, projectDir) {
-    let script = this.buildRunScript(bin, args, projectDir)
+    let script = this.buildRunScript(bin, args, projectDir);
     const content = script.content;
     const suffix = script.suffix;
 
     return new Promise((resolve, reject) => {
-      var tmp = {};
-
-      quickTemp.makeOrReuse(tmp, 'tmp');
-
-      temp.open({dir: tmp.tmp, suffix}, function (err, info) {
+      temp.open({prefix: "ember-hearth", suffix}, function (err, info) {
         if (!err) {
           fs.write(info.fd, content);
           fs.close(info.fd, function (err) {

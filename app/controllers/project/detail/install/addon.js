@@ -53,8 +53,7 @@ export default Ember.Controller.extend({
     return this.get('addons').slice(0, page * size + size);
   }),
 
-  triggerProjectReload(ev, cmd){
-    let command = this.get('store').peekRecord('command', cmd.id);
+  triggerProjectReload(ev, command){
     if (command.get('succeeded') &&
       ['install', 'uninstall'].indexOf(command.get('name')) !== -1 &&
       command.get('bin') === 'ember') {
@@ -64,11 +63,13 @@ export default Ember.Controller.extend({
 
   init(){
     this._super(...arguments);
-    this.get('ipc').on('cmd-close', this, this.triggerProjectReload);
+    const ipc = this.get('ipc');
+    this.set('_cmdCloseListeners', ipc.deserializedCallback('command', this.triggerProjectReload.bind(this)));
+    ipc.on('cmd-close', this.get('_cmdCloseListeners'));
   },
 
   destroy(){
-    this.get('ipc').on('cmd-close', this, this.triggerProjectReload);
+    this.get('ipc').off('cmd-close', this.get('_cmdCloseListeners'));
     this._super(...arguments);
   },
 

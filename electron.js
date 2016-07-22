@@ -6,7 +6,8 @@ const path = require('path');
 const {app, BrowserWindow, ipcMain} = electron;
 const dirname = __dirname || path.resolve(path.dirname());
 const emberAppLocation = `file://${dirname}/dist/index.html`;
-const hearth = require('./cli/hearth');
+// const hearth = require('./cli/hearth');
+const Hearth = require('./cli/hearth');
 
 let mainWindow = null;
 
@@ -28,12 +29,12 @@ app.on('window-all-closed', function onWindowAllClosed() {
 
 app.on('ready', function onReady() {
   mainWindow = new BrowserWindow({
-    icon: path.join(__dirname, 'cli', 'hearth-tray.png'),
+    icon: path.join(__dirname, 'cli', 'assets', 'hearth-tray.png'),
     width: 800,
     height: 600
   });
 
-  hearth.ready(app, mainWindow);
+  const hearth = new Hearth(app, mainWindow, ipcMain);
 
   delete mainWindow.module;
 
@@ -68,7 +69,7 @@ app.on('ready', function onReady() {
   });
 
   mainWindow.on('closed', () => {
-    hearth.killAllProcesses();
+    hearth.destroy();
     mainWindow = null;
   });
 
@@ -91,23 +92,5 @@ app.on('ready', function onReady() {
     console.log('An exception in the main thread was not handled.');
     console.log('This is a serious issue that needs to be handled and/or debugged.');
     console.log(`Exception: ${err}`);
-  });
-});
-
-var mapping = {
-  'hearth-add-project': 'addProject',
-  'hearth-update-project': 'updateProject',
-  'hearth-remove-project': 'removeProject',
-  'hearth-ready': 'emitProjects',
-  'hearth-init-project': 'initProject',
-
-  'hearth-run-cmd': 'runCmd',
-  'hearth-kill-cmd': 'killCmd'
-};
-
-Object.keys(mapping).forEach((evName) => {
-  ipcMain.on(evName, (ev, data) => {
-    console.log('ipc', evName, ...data);
-    hearth[mapping[evName]](ev, ...data);
   });
 });

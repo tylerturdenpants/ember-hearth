@@ -2,7 +2,7 @@ module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'ember-hearth',
     environment: environment,
-    baseURL: '/',
+    rootURL: null,
     locationType: 'hash',
     EmberENV: {
       FEATURES: {
@@ -28,7 +28,6 @@ module.exports = function(environment) {
 
   if (environment === 'test') {
     // Testem prefers this...
-    ENV.baseURL = '/';
     ENV.locationType = 'none';
 
     // keep test console output quieter
@@ -39,6 +38,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
+
   }
 
   return ENV;

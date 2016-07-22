@@ -9,7 +9,7 @@ export default Ember.Controller.extend({
 
   actions: {
     removeProject(){
-      this.get('ipc').trigger('hearth-remove-project', this.get('store').serialize(this.get('model'), {includeId: true}));
+      this.get('ipc').trigger('hearth-remove-project', this.get('ipc').serialize('project', this.get('model')));
       this.transitionToRoute('application');
     },
     startServer(){
