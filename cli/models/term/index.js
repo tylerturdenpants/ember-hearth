@@ -11,6 +11,7 @@ class Term {
 
   }
   spawn(bin, args, spawnOptions) {
+    console.log('spawning', bin, args, spawnOptions);
     return spawn(bin, args, spawnOptions);
   }
 

@@ -9,15 +9,11 @@ const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
 const files = Promise.promisify(require('node-dir').files);
 const term = require('./models/term').forPlatform();
+const mkdirp = require('mkdirp');
 
 const processes = {};
 let resetTray;
-const db = {
-  apps: Promise.promisifyAll(new Datastore({
-    filename: path.resolve(__dirname, '..', 'hearth.nedb.json'),
-    autoload: true
-  }))
-};
+let db;
 const binaries = {
   ember: path.join(__dirname, '..', 'node_modules', 'ember-cli', 'bin', 'ember'),
   npm: path.join(__dirname, '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
@@ -87,6 +83,25 @@ function ready(app, window) {
   const Tray = electron.Tray;
   const Menu = electron.Menu;
   let tray = new Tray(path.join(__dirname, 'hearth-tray@2x.png'));
+
+  const appDataPath = app.getPath('userData');
+  const nedbPath = path.join(appDataPath, 'hearth.nedb.json');
+
+  mkdirp.sync(appDataPath);
+  try{
+    fs.statSync(nedbPath);
+    console.log(`using db ${nedbPath}`);
+  } catch(e) {
+    console.log(`no existing db, creating ${nedbPath}`);
+    fs.writeFileSync(nedbPath, '');
+  }
+
+  db = {
+    apps: Promise.promisifyAll(new Datastore({
+      filename: nedbPath,
+      autoload: true
+    }))
+  };
 
   resetTray = function () {
     let tpl = trayApps.map(app => {
