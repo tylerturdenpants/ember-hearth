@@ -1,278 +1,212 @@
-'use strict';
-
-const Datastore = require('nedb');
-const electron = require('electron');
-const uuid = require('node-uuid');
-const Promise = require('bluebird');
-const jsonminify = require("jsonminify");
-const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
+const {Tray, Menu} = require('electron');
+const DB = require('./lib/db');
+const Commander = require('./lib/commander');
+const Serializer = require('./lib/serializer');
+const Messenger = require('./lib/messenger');
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 const files = Promise.promisify(require('node-dir').files);
-const term = require('./models/term').forPlatform();
-const mkdirp = require('mkdirp');
+const jsonminify = require("jsonminify");
 
-const processes = {};
-let resetTray;
-let db;
-const binaries = {
-  ember: path.join(__dirname, '..', 'node_modules', 'ember-cli', 'bin', 'ember'),
-  npm: path.join(__dirname, '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
-};
+class Hearth {
+  constructor(app, window, ipc) {
+    this.fs = fs;
+    this.app = app;
+    this.window = window;
+    this.tray = new Tray(path.join(__dirname, 'assets', 'hearth-tray@2x.png'));
+    this.projects = [];
+    this.processes = {};
 
-function pathIsTransform(path) {
-  return path.indexOf('/app/transforms/') === 0;
-}
-
-function pathToBinary(bin) {
-  return binaries[bin];
-}
-
-function isEmberProject(projectPath) {
-  const packagePath = path.join(projectPath, 'package.json');
-
-  return fs.statAsync(packagePath)
-    .then((stat) => stat.isFile() ? fs.readFileAsync(packagePath) : Promise.reject())
-    .then((data) => {
-      const pkg = JSON.parse(data);
-
-      const isEmberProject = pkg.devDependencies.hasOwnProperty('ember-cli') ||
-        pkg.dependencies.hasOwnProperty('ember-cli') ||
-        pkg.optionalDependencies.hasOwnProperty('ember-cli') ||
-        pkg.bundleDependencies.hasOwnProperty('ember-cli') ||
-        pkg.peerDependencies.hasOwnProperty('ember-cli');
-
-      return isEmberProject ? isEmberProject : Promise.reject();
-    });
-}
-
-function addMetadata(project) {
-  // get some app metadata (could probably be cached, but avoids old entries if stored in db on add)
-  console.log('stat', path.resolve(project.data.attributes.path, 'package.json'));
-  const packagePath = path.resolve(project.data.attributes.path, 'package.json');
-  const cliPath = path.resolve(project.data.attributes.path, '.ember-cli');
-  const appPath = path.resolve(project.data.attributes.path, 'app');
-
-  return Promise.props({
-    'package': fs.statAsync(packagePath),
-    'cli': fs.statAsync(cliPath),
-    'app': files(appPath)
-  }).then((stats) => {
-    return Promise.props({
-      'package': stats.package.isFile() && fs.readFileAsync(packagePath),
-      cli: stats.cli.isFile() && fs.readFileAsync(cliPath)
-    }).then(data => {
-      if (data.package) project.data.attributes.package = JSON.parse(data.package);
-      if (data.cli) project.data.attributes.cli = JSON.parse(jsonminify(data.cli.toString('utf8')));
-
-      // TODO: read default ports
-      if (!project.data.attributes.cli) project.data.attributes.cli = {};
-      if (!project.data.attributes.cli.testPort) project.data.attributes.cli.testPort = 7357;
-      if (!project.data.attributes.cli.port) project.data.attributes.cli.port = 4200;
-
-      project.data.attributes.transforms = stats.app.map(path => path.substring(project.data.attributes.path.length))
-        .filter(pathIsTransform);
-
-      return project;
-    });
-  });
-}
-
-var trayApps = [];
-
-function ready(app, window) {
-  const Tray = electron.Tray;
-  const Menu = electron.Menu;
-  let tray = new Tray(path.join(__dirname, 'hearth-tray@2x.png'));
-
-  const appDataPath = app.getPath('userData');
-  const nedbPath = path.join(appDataPath, 'hearth.nedb.json');
-
-  mkdirp.sync(appDataPath);
-  try{
-    fs.statSync(nedbPath);
-    console.log(`using db ${nedbPath}`);
-  } catch(e) {
-    console.log(`no existing db, creating ${nedbPath}`);
-    fs.writeFileSync(nedbPath, '');
+    this.db = new DB(app.getPath('userData'));
+    this.serializer = new Serializer();
+    this.messenger = new Messenger(ipc);
+    this.commander = new Commander(this.db, this.messenger);
+    this.resetTray();
+    this.attachListeners();
   }
 
-  db = {
-    apps: Promise.promisifyAll(new Datastore({
-      filename: nedbPath,
-      autoload: true
-    }))
-  };
+  attachListeners() {
+    this.messenger.on('hearth-init-project', (message) => {
+      const data = message.data;
 
-  resetTray = function () {
-    let tpl = trayApps.map(app => {
+      console.log('init', message.data);
+      const ember = this.commander.term.spawn(
+        this.commander.pathToBinary('ember'),
+        ['init', '--name', path.basename(data.path)], {
+          cwd: path.normalize(data.path)
+        }
+      );
+
+      ember.stdout.on('data', (stdoutData) => {
+        console.log(`${data.path} stdout: ${stdoutData.toString('utf8')}`);
+        this.messenger.reply(message, 'project-init-stdout', stdoutData.toString('utf8'));
+      });
+      ember.stderr.on('data', (stderrData) => {
+        console.log(`${data.path} stderr: ${stderrData.toString('utf8')}`);
+        this.messenger.reply(message, 'project-init-stderr', stderrData.toString('utf8'));
+      });
+      ember.on('close', (code) => {
+        console.log(`${data.path} child process exited with code ${code}`);
+        this.addProject(data.path).then(project => {
+          return this.refreshProjects()
+            .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects))
+            .then(() => this.messenger.replySerialized(message, 'project-init-end', 'project', project));
+        }).catch(() => this.messenger.reply(message, 'project-not-ember-app', data.path))
+      });
+      this.messenger.reply(message, 'project-init-start', data);
+    });
+
+    this.messenger.onDeserialized('hearth-ready', 'project', (message) => {
+      this.db.findAllProjects()
+        .filter(project => this.validProject(project.path).catch(() => false))
+        .map(project => this.addMetadata(project))
+        .then(projects => {
+          this.projects = projects;
+          return this.messenger.replySerialized(message, 'project-list', 'project', projects);
+        })
+        .finally(() => this.resetTray())
+        .catch(e => console.error(e));
+    });
+
+    this.messenger.on('hearth-add-project', (message) => {
+      const projectPath = message.data;
+      console.log('hearth-add-project', projectPath);
+      this.addProject(projectPath)
+        .then(project => this.refreshProjects()
+          .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects))
+          .then(() => this.messenger.replySerialized(message, 'open-project', 'project', project)))
+        .catch(() => this.messenger.reply(message, 'project-not-ember-app', projectPath));
+    });
+
+    this.messenger.onDeserialized('hearth-remove-project', 'project', (message) => {
+      const project = message.data;
+      console.log('hearth-remove-project', project);
+
+      project.commands.forEach(command => this.commander.killCommand(message, command.id));
+      this.db.removeProjectById(project.id)
+        .then(() => this.refreshProjects())
+        .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects));
+    });
+
+    this.messenger.onDeserialized('hearth-run-cmd', 'command', (message) => {
+      console.log('hearth-run-cmd', message);
+      this.commander.runCommand(message, message.data);
+    });
+    this.messenger.onDeserialized('hearth-kill-cmd', 'command', (message) => {
+      console.log('hearth-kill-cmd', message.data);
+      this.commander.killCommand(message, message.data);
+    });
+    this.messenger.onDeserialized('hearth-update-project', 'project', (message) => {
+      this.updateProject(message.data)
+        .then(() => this.refreshProjects())
+        .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects));
+    });
+  }
+
+  resetTray() {
+    let tpl = this.projects.map(project => {
       return {
-        label: app.data.attributes.name,
+        label: project.name,
         type: 'normal',
         click: () => {
-          window.webContents.send('open-project', app.data.id);
-          window.show();
+          this.window.webContents.send('open-project', project.data.id);
+          this.window.show();
         }
       };
     }).concat([
       {type: 'separator'},
-      {label: 'Exit Hearth', type: 'normal', click: () => app.quit()}
+      {label: 'Exit Hearth', type: 'normal', click: () => this.app.quit()}
     ]);
 
-    tray.setToolTip(`Ember Hearth v${app.getVersion()}`);
-    tray.setContextMenu(Menu.buildFromTemplate(tpl));
-  };
+    this.tray.setToolTip(`Ember Hearth v${this.app.getVersion()}`);
+    this.tray.setContextMenu(Menu.buildFromTemplate(tpl));
+  }
 
-  resetTray();
-}
+  updateProject(project) {
+    const cli = project.cli;
+    const cliPath = path.resolve(project.path, '.ember-cli');
 
-function emitProjects(ev) {
-  return db.apps.findAsync({})
-    .filter(project => isEmberProject(project.data.attributes.path).catch(() => false))
-    .map(addMetadata)
-    .then(apps => {
-      trayApps = apps;
-      // send jsonapi list of apps
-      ev.sender.send('project-list', {
-        data: apps.map(project => project.data)
+    console.log(`updating project config at ${cliPath}`);
+    return fs.writeFileAsync(cliPath, JSON.stringify(cli, null, ' '));
+  }
+
+  addMetadata(project) {
+    // get some app metadata (could probably be cached, but avoids old entries if stored in db on add)
+    console.log('addMetadata', project.path);
+    const packagePath = path.resolve(project.path, 'package.json');
+    const cliPath = path.resolve(project.path, '.ember-cli');
+    const appPath = path.resolve(project.path, 'app');
+
+    return Promise.props({
+      'package': this.fs.statAsync(packagePath),
+      'cli': this.fs.statAsync(cliPath),
+      'app': files(appPath)
+    }).then((stats) => {
+      return Promise.props({
+        'package': stats.package.isFile() && fs.readFileAsync(packagePath),
+        cli: stats.cli.isFile() && fs.readFileAsync(cliPath)
+      }).then(data => {
+        if (data.package) project.package = JSON.parse(data.package);
+        if (data.cli) project.cli = JSON.parse(jsonminify(data.cli.toString('utf8')));
+
+        // TODO: read default ports
+        if (!project.cli) project.cli = {};
+        if (!project.cli.testPort) project.cli.testPort = 7357;
+        if (!project.cli.port) project.cli.port = 4200;
+
+        project.transforms = stats.app.map(path => path.substring(project.path.length))
+          .filter((path) => path.indexOf('/app/transforms/'));
+
+        return project;
       });
-    }).finally(() => resetTray());
-}
-
-function removeProject(ev, project) {
-  project.data.commands.forEach(command => {
-    killCmd(ev, command);
-  });
-
-  return db.apps.removeAsync({'data.id': project.data.id}).then(data => {
-    return emitProjects(ev)
-      .then(() => data);
-  });
-}
-
-function updateProject(ev, project) {
-  // if we ever need it, we can update the database here
-  // update cli file
-  const cli = project.data.attributes.cli;
-  const cliPath = path.resolve(project.data.attributes.path, '.ember-cli');
-
-  return fs.writeFileAsync(cliPath, JSON.stringify(cli, null, ' ')).then(() => {
-    return emitProjects(ev);
-  });
-}
-
-function addProject(ev, appPath) {
-  let searchApp = db.apps.findOneAsync({"data.attributes.path": appPath});
-
-  return isEmberProject(appPath)
-    .then(() => searchApp)
-    .then(appFound => {
-      if (appFound) {
-        ev.sender.send('open-project', appFound.data.id);
-      } else {
-        return db.apps.insertAsync({
-          data: {
-            id: uuid.v4(),
-            type: 'project',
-            attributes: {
-              path: appPath,
-              name: path.basename(appPath)
-            }
-          }
-        }).then((data) => {
-          return emitProjects(ev)
-            .then(() => data);
-        });
-      }
-    }).catch(() => {
-      ev.sender.send('project-not-ember-app', appPath);
     });
-}
+  }
 
-function initProject(ev, data) {
-  var ember = term.spawn(pathToBinary('ember'), ['init'], {
-    cwd: path.normalize(data.path)
-  });
-  ember.stdout.on('data', (data) => {
-    ev.sender.send('project-init-stdout', data.toString('utf8'));
-    console.log(`${data.path} stdout: ${data.toString('utf8')}`);
-  });
-  ember.stderr.on('data', (data) => {
-    ev.sender.send('project-init-stderr', data.toString('utf8'));
-    console.log(`${data.path} stderr: ${data.toString('utf8')}`);
-  });
-  ember.on('close', (code) => {
-    console.log(`${data.path} child process exited with code ${code}`);
-    addProject(ev, data.path).then((project) => {
-      ev.sender.send('project-init-end', project);
-    });
-  });
-  ev.sender.send('project-init-start', data);
-}
+  validProject(projectPath) {
+    console.log('validProject', projectPath);
+    const packagePath = path.join(projectPath, 'package.json');
 
-function runCmd(ev, cmd) {
-  const cmdData = cmd.data;
-  return db.apps.findAsync({'data.id': cmdData.relationships.project.data.id}).then((projects) => {
-    const project = projects[0];
-    const args = [cmdData.attributes.name].concat(cmdData.attributes.args);
-    let cmdPromise;
+    return this.fs.statAsync(packagePath)
+      .then((stat) => stat.isFile() ? this.fs.readFileAsync(packagePath) : Promise.reject())
+      .then((data) => {
+        const pkg = JSON.parse(data);
 
-    if (cmdData.attributes.options) {
-      Object.keys(cmdData.attributes.options).forEach(optionName =>
-        args.push(`--${optionName}`, cmdData.attributes.options[optionName]));
-    }
+        const isEmberProject = pkg.devDependencies.hasOwnProperty('ember-cli') ||
+          pkg.dependencies.hasOwnProperty('ember-cli') ||
+          pkg.optionalDependencies.hasOwnProperty('ember-cli') ||
+          pkg.bundleDependencies.hasOwnProperty('ember-cli') ||
+          pkg.peerDependencies.hasOwnProperty('ember-cli');
 
-    if (cmdData.attributes['in-term']) {
-      cmdPromise = term.launchTermCommand(pathToBinary(cmdData.attributes.bin), args, {
-        cwd: path.normalize(project.data.attributes.path)
+        return isEmberProject ? projectPath : Promise.reject('Not a valid ember project');
       });
-    } else {
-      cmdPromise = Promise.resolve(term.spawn(pathToBinary(cmdData.attributes.bin), args, {
-        cwd: path.normalize(project.data.attributes.path)
-      }));
-    }
+  }
 
-    return cmdPromise.then((cmd) => {
-      cmd.stdout.on('data', (data) => {
-        ev.sender.send('cmd-stdout', cmdData, data.toString('utf8'));
-        console.log(`cmd ${args} stdout: ${data}`);
-      });
-      cmd.stderr.on('data', (data) => {
-        ev.sender.send('cmd-stderr', cmdData, data.toString('utf8'));
-        console.log(`cmd ${args} stderr: ${data}`);
-      });
-      cmd.on('close', (code) => {
-        delete processes[cmdData.id];
-        ev.sender.send('cmd-close', cmdData, code);
-        console.log(`cmd ${args} child process exited with code ${code}`);
-      });
-      ev.sender.send('cmd-start', cmdData);
-      processes[cmdData.id] = cmd;
-    });
-  });
-}
+  refreshProjects() {
+    return this.db.findAllProjects()
+      .filter(project => this.validProject(project.path).catch(() => false))
+      .map(project => this.addMetadata(project))
+      .then(projects => this.projects = projects)
+      .finally(() => this.resetTray());
+  }
 
-function killCmd(ev, cmd) {
-  if (processes[cmd.data.id]) {
-    processes[cmd.data.id].kill();
+  addProject(projectPath) {
+    console.log('addProject', projectPath);
+    return this.validProject(projectPath)
+      .then((projectPath) => this.db.findProjectByPath(projectPath))
+      .then(project => {
+        if (project) {
+          return project;
+        } else {
+          return this.db.insertProjectByPath(projectPath);
+        }
+      });
+  }
+
+  destroy() {
+    this.commander.killAllProcesses();
   }
 }
 
-function killAllProcesses() {
-  Object.keys(processes).forEach(processId =>
-    processes[processId].kill());
-}
 
-module.exports = {
-  ready,
-
-  runCmd,
-  killCmd,
-
-  emitProjects,
-  initProject,
-  addProject,
-  updateProject,
-  removeProject,
-
-  killAllProcesses
-};
+module.exports = Hearth;

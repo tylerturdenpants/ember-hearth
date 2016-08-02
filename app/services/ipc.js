@@ -1,19 +1,31 @@
 import Ember from 'ember';
 let electron = requireNode('electron');
 
-const {Evented} = Ember;
+const {inject:{service}} = Ember;
 
-export default Ember.Service.extend(Evented, {
-  on(name, target, method){
-    this._super(...arguments);
-    if (typeof target !== 'function') {
-      electron.ipcRenderer.on(name, method.bind(target));
-    } else {
-      electron.ipcRenderer.on(name, target);
-    }
+export default Ember.Service.extend({
+  store: service(),
+
+  on(name, callback){
+    electron.ipcRenderer.on(name, callback);
+    return callback;
   },
-  trigger(name, ...args) {
-    this._super(...arguments);
-    electron.ipcRenderer.send(name, args);
+
+  off(name, listener) {
+    electron.ipcRenderer.removeListener(name, listener);
+  },
+
+  trigger(name, data) {
+    electron.ipcRenderer.send(name, data);
+  },
+
+  deserializedCallback(modelName, callback){
+    return (ev, data, ...rest) => {
+      return callback(ev, this.get('store').push(data), ...rest);
+    };
+  },
+
+  serialize(modelName, record){
+    return record.serialize({includeId: true});
   }
 });

@@ -12,46 +12,37 @@ export default Ember.Controller.extend({
   init(){
     this._super(...arguments);
 
-    let store = this.get('store');
+    const store = this.get('store');
+    const ipc = this.get('ipc');
 
-    this.get('ipc').on('project-list', (ev, data) => {
+    ipc.on('project-list', ipc.deserializedCallback('project', (ev, projects) => {
       // create lookup table for current project list
-      let projects = data.data.reduce((all, project) => {
+      let projectIds = projects.reduce((all, project) => {
         all[project.id] = true;
         return all;
       }, {});
 
-      this.get('store').pushPayload('project', data);
       // unload all records that aren't in project list
       this.get('store').peekAll('project')
-        .filter(project => !projects[project.get('id')])
+        .filter(project => !projectIds[project.get('id')])
         .forEach(project => store.unloadRecord(project));
 
       this.set('ready', true);
-    });
+    }));
 
-    this.get('ipc').on('cmd-start', (ev, cmd) => {
-      this.get('store').peekRecord('command', cmd.id)
-        .set('running', true);
-    });
-    this.get('ipc').on('cmd-stdout', (ev, cmd, data) => {
-      this.get('store').peekRecord('command', cmd.id)
-        .get('stdout').pushObject(data);
-    });
-    this.get('ipc').on('cmd-stderr', (ev, cmd, data) => {
-      this.get('store').peekRecord('command', cmd.id)
-        .get('stderr').pushObject(data);
-    });
-    this.get('ipc').on('open-project', (ev, projectId) => {
-      this.transitionToRoute('project.detail', this.get('store').peekRecord('project', projectId));
-    });
-
-    this.get('ipc').on('project-not-ember-app', (ev, path) => {
-      alert(`Project at "${path}" is not an ember app`);
-    });
-
-    this.get('ipc').on('cmd-close', (ev, cmd, code) => {
-      let command = this.get('store').peekRecord('command', cmd.id);
+    ipc.on('cmd-start', ipc.deserializedCallback('command', (ev, command) => {
+      command.set('running', true);
+    }));
+    ipc.on('cmd-stdout', ipc.deserializedCallback('command', (ev, command, data) => {
+      command.get('stdout').pushObject(data);
+    }));
+    ipc.on('cmd-stderr', ipc.deserializedCallback('command', (ev, command, data) => {
+      command.get('stderr').pushObject(data);
+    }));
+    ipc.on('open-project', ipc.deserializedCallback('project', (ev, project) => {
+      this.transitionToRoute('project.detail', project);
+    }));
+    ipc.on('cmd-close', ipc.deserializedCallback('command', (ev, command, code) => {
       command.set('running', false);
       if (code === 0) {
         command.set('succeeded', true);
@@ -60,9 +51,13 @@ export default Ember.Controller.extend({
         command.set('failed', true);
         command.onFail();
       }
+    }));
+
+    ipc.on('project-not-ember-app', (ev, path) => {
+      alert(`Project at "${path}" is not an ember app`);
     });
 
-    this.get('ipc').trigger('hearth-ready');
+    ipc.trigger('hearth-ready');
   },
 
   actions: {

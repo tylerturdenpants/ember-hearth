@@ -19,21 +19,26 @@ export default Ember.Service.extend({
   _stopResolveMap: {},
   _startResolveMap: {},
 
-  _callStopResolveFn: buildResolveFn('_stopResolveMap'),
-  _callStartResolveFn: buildResolveFn('_startResolveMap'),
-
   init(){
     this._super(...arguments);
 
+    const ipc = this.get('ipc');
+
     // all the _call*ResolveFn are basically to resolve an earlier created promise after a server event is emitted
-    this.get('ipc').on('cmd-close', this, this.get('_callStopResolveFn'));
-    this.get('ipc').on('cmd-start', this, this.get('_callStartResolveFn'));
+    this.set('_cmdCloseCallback', ipc.deserializedCallback('command', buildResolveFn('_stopResolveMap').bind(this)));
+    this.set('_cmdStartCallback', ipc.deserializedCallback('command', buildResolveFn('_startResolveMap').bind(this)));
+
+    ipc.on('cmd-close', this.get('_cmdCloseCallback'));
+    ipc.on('cmd-start', this.get('_cmdStartCallback'));
   },
 
   destroy(){
     this._super(...arguments);
-    this.get('ipc').off('cmd-close', this, this.get('_callStopResolveFn'));
-    this.get('ipc').off('cmd-start', this, this.get('_callStartResolveFn'));
+
+    const ipc = this.get('ipc');
+
+    ipc.off('cmd-close', this.get('_cmdCloseCallback'));
+    ipc.off('cmd-start', this.get('_cmdStartCallback'));
   },
 
   storeResolveForCommand(resolver, command, resolve) {
@@ -44,14 +49,14 @@ export default Ember.Service.extend({
   start(command) {
     return new RSVP.Promise((resolve) => {
       this.storeResolveForCommand('_startResolveMap', command, resolve);
-      this.get('ipc').trigger('hearth-run-cmd', this.get('store').serialize(command, {includeId: true}));
+      this.get('ipc').trigger('hearth-run-cmd', this.get('ipc').serialize('command', command));
     });
   },
 
   stop(command) {
     return new RSVP.Promise((resolve) => {
       this.storeResolveForCommand('_stopResolveMap', command, resolve);
-      this.get('ipc').trigger('hearth-kill-cmd', this.get('store').serialize(command, {includeId: true}));
+      this.get('ipc').trigger('hearth-kill-cmd', this.get('ipc').serialize('command', command));
     });
   },
 
