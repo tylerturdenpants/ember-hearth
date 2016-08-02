@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-const {computed, inject} = Ember;
+const {computed, inject: {service}} = Ember;
 
 function flatten(array) {
   return [].concat.apply([], array);
@@ -9,8 +9,9 @@ function flatten(array) {
 export default Ember.Component.extend({
   classNames: ['ui segment'],
 
-  commander: inject.service(),
-  store: inject.service(),
+  commander: service(),
+  store: service(),
+  ipc: service(),
 
   extended: false,
 
@@ -89,6 +90,11 @@ export default Ember.Component.extend({
           .concat(anonymousFields).map(arg => arg.split(' '))),
         project: project
       });
+
+      if (command.get('name') === 'generate' && command.get('args.firstObject') === 'transform') {
+        // update project if command generates transform
+        command.set('onSucceed', () => this.get('ipc').trigger('hearth-ready'));
+      }
 
       this.set('createdCommand', command);
       this.get('commander').start(command);
