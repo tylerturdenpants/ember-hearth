@@ -156,7 +156,7 @@ class Hearth {
         if (!project.cli.port) project.cli.port = 4200;
 
         project.transforms = stats.app.map(path => path.substring(project.path.length))
-          .filter((path) => path.indexOf('/app/transforms/'));
+          .filter((path) => path.indexOf('/app/transforms/') !== -1);
 
         return project;
       });
