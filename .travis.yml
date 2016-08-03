@@ -31,6 +31,7 @@ deploy:
   api_key:
     secure: lTJ7422+w6FmnQccu4Npjx/G72D0r7Ga7f5U0x9t0Z2M516jIgA+IwoGufrIEUyYD/AkB5bEzdQJUXvse+SLz/240eC6IhNBjxQoA3B4r18pLbCNDPd0l8jIcW7iZFSsclyU9HztHCq7S6UoQU8tV5k+voot01w7DmPSC8/YWrxEDuI75PH0lwgaNOBSNN8sMgA/Afx2AF5g4pniLNG1a9fyq0Fhpl/WHPXyiO6bFY5h+UqMNRC0oj731G0R1Ft+2A5CVucfFxSVr+ozjMPdAdwpN7Lcjsp+2OrLEsLSQq4A0D8aNYTja5LAX0RiMqnmtTah3Wjd681yDlCIIYo4mzH8rNhBxcaAIwyj/OYP0ITP1D0gLtrNHy6NY/SYlePKQDxZZbAL6b30AhKSA/1K3Jwu2/a3nWHO7Y6lmowM8nIMPZ9+V3vqBSttUlKcXdXhWnKCqNNeAv0p8AY20d1qYFwNEZZCKu16YSrZYtO+eSRQcJiZkIN/mAcorbp20OKJQDqj8f24+mrQg+x7QaYOQl9lfc7aeQz66NOhEZz5bO8i93CzTr7bUvQOutRElglnAPkB7lARMQzKQ4WhYAPH7PvAwPvRtssrZC0MNoQ35WkKi4nu/rvuNklMAnRvM4KR2RubGb6gDOrkaSQ8hSqqJ2PLw3iQNs3apOZlejaaSg4=
   file: electron-builds
+  skip_cleanup: true
   on:
     repo: ember-learn/ember-hearth
     branch: master
