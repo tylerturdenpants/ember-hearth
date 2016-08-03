@@ -26,6 +26,8 @@ before_script:
 - sleep 3
 script:
 - ember electron:test
+- ember electron:package --platform=darwin --arch=x64 --overwrite
+- ember electron:package --platform=linux --arch=x64 --overwrite
 deploy:
   provider: releases
   api_key:
