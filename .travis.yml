@@ -33,4 +33,4 @@ deploy:
   file: dist
   on:
     repo: ember-learn/ember-hearth
-    branch: electron
+    branch: master
