@@ -29,8 +29,8 @@ script:
 before_deploy:
 - ember electron:package --platform=darwin --arch=x64 --overwrite
 - ember electron:package --platform=linux --arch=x64 --overwrite
-- tar -cvjf electron-builds/Ember\ Hearth-darwin-x64.tar.bz2 electron-builds/Ember\ Hearth-darwin-x64
-- tar -cvjf electron-builds/Ember\ Hearth-linux-x64.tar.bz2 electron-builds/Ember\ Hearth-linux-x64
+- tar -cjf electron-builds/Ember\ Hearth-darwin-x64.tar.bz2 electron-builds/Ember\ Hearth-darwin-x64
+- tar -cjf electron-builds/Ember\ Hearth-linux-x64.tar.bz2 electron-builds/Ember\ Hearth-linux-x64
 deploy:
   provider: releases
   api_key:
