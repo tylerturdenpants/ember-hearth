@@ -1,11 +1,13 @@
 import Ember from 'ember';
 
-const {inject} = Ember;
+const {inject, computed} = Ember;
 
 export default Ember.Controller.extend({
   ipc: inject.service(),
   store: inject.service(),
   commander: inject.service(),
+
+  project: computed.alias('model'),
 
   actions: {
     removeProject(){

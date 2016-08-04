@@ -1,27 +1,7 @@
-<div class="ui segments">
-  {{#each model.commands as |cmd|}}
-      <div class="ui attached segment">
-          <h4 class="ui header"><code>{{cmd.bin}} {{cmd.name}} {{cmd.args}} {{cmd.options}}</code>
-          </h4>
-
-          <div class="ui grid">
-              <div class="eight wide column"><h5 class="ui header">stdout</h5>
-                  <div class="ui segments">
-                    {{#each cmd.stdout as |out|}}
-                        <div class="ui segment"><pre class="stdout">{{out}}</pre></div>
-                    {{/each}}
-                  </div>
-              </div>
-              <div class="eight wide column"><h5 class="ui header">stderr</h5>
-                  <div class="ui segments">
-                    {{#each cmd.stderr as |out|}}
-                        <div class="ui segment"><pre class="stderr">{{out}}</pre></div>
-                    {{/each}}
-                  </div>
-              </div>
-          </div>
-      </div>
-  {{/each}}
+<div class="segment-outline">
+{{#each model.commands as |command|}}
+    {{log-line command=command}}
+{{/each}}
 </div>
 
 {{outlet}}
