@@ -42,3 +42,4 @@ deploy:
   on:
     repo: ember-learn/ember-hearth
     branch: master
+    tags: true
