@@ -110,8 +110,9 @@ class Hearth {
         label: project.name,
         type: 'normal',
         click: () => {
-          this.window.webContents.send('open-project', project.data.id);
-          this.window.show();
+          this.messenger.serializer.serialize('project', project)
+            .then(serialized => this.window.webContents.send('open-project', serialized))
+            .then(() => this.window.show());
         }
       };
     }).concat([
