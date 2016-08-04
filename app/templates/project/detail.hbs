@@ -1,43 +1,47 @@
 <div class="flex flex-column full-viewport-height">
     <div>
-        <h2 class="ui header">
+        <div class="ui fluid card">
             <div class="content">
-                <i class="icon {{if model.isAddon 'puzzle' 'desktop'}}"></i>
-              {{model.name}}
-                <div class="sub header">{{model.path}}</div>
+                <div class="header">{{project.name}}</div>
+                <div class="meta">{{project.path}}</div>
+                <div class="ui right corner label {{if project.isAddon 'addon' 'project'}}">
+                    <i class="{{if project.isAddon 'puzzle' 'desktop'}} icon"></i>
+                </div>
             </div>
-        </h2>
+            <div class="extra content">
+              {{#if model.serveCommand.running}}
+                  <button class="ui labeled red icon button" {{action 'stopServer'}}>
+                      <i class="stop square icon"></i>
+                      Stop Ember server
+                  </button>
+                  <button class="ui icon basic button"
+                          title="Open in web browser" {{action 'openExternal' (concat "http://127.0.0.1:" model.cli.port)}}>
+                      <i class="external square icon"></i>
+                  </button>
+              {{else}}
+                  <div class="ui labeled green icon button" {{action 'startServer'}}>
+                      <i class="play square icon"></i>
+                      Start Ember server
+                  </div>
+              {{/if}}
 
-      {{#if model.serveCommand.running}}
-          <button class="ui labeled red icon button" {{action 'stopServer'}}>
-              <i class="stop square icon"></i>
-              Stop Ember server
-          </button>
-          <button class="ui icon button"
-                  title="Open in web browser" {{action 'openExternal' (concat "http://127.0.0.1:" model.cli.port)}}>
-              <i class="external square icon"></i>
-          </button>
-      {{else}}
-          <div class="ui labeled green icon button" {{action 'startServer'}}>
-              <i class="play square icon"></i>
-              Start Ember server
-          </div>
-      {{/if}}
+                <div class="ui basic icon buttons">
+                    <button class="ui button"
+                            title="Open package.json" {{action 'openItem' (concat model.path '/package.json')}}>
+                        <i class="file text icon"></i>
+                    </button>
+                    <button class="ui button"
+                            title="Open project in file manager" {{action 'showItemInFolder' model.path}}>
+                        <i class="folder icon"></i>
+                    </button>
+                </div>
 
-        <div class="ui icon buttons">
-            <button class="ui button"
-                    title="Open package.json" {{action 'openItem' (concat model.path '/package.json')}}>
-                <i class="file text icon"></i>
-            </button>
-            <button class="ui button" title="Open project in file manager" {{action 'showItemInFolder' model.path}}>
-                <i class="folder icon"></i>
-            </button>
+                <button class="negative ui right floated labeled icon button" {{action 'removeProject'}}>
+                    <i class="remove icon"></i>
+                    Remove
+                </button>
+            </div>
         </div>
-
-        <button class="negative ui right floated labeled icon button" {{action 'removeProject'}}>
-            <i class="remove icon"></i>
-            Remove
-        </button>
 
       {{#if model.serveCommand.running}}
         {{#if model.isServing}}
@@ -58,15 +62,14 @@
             </div>
         {{/if}}
       {{/if}}
-
-        <div class="ui secondary pointing menu">
-          {{#link-to 'project.detail.log' model class='item'}}Log{{/link-to}}
-          {{#link-to 'project.detail.commands' model class='item'}}Commands{{/link-to}}
-          {{#link-to 'project.detail.install.addon' class='item' current-when='project.detail.install'}}Packages{{/link-to}}
-          {{#link-to 'project.detail.settings' model class='item'}}Project settings{{/link-to}}
-          {{#link-to 'project.detail.statistics' model class='item'}}Statistics{{/link-to}}
-          {{#link-to 'project.detail.model-maker' model class='item'}}Model maker{{/link-to}}
-        </div>
+    </div>
+    <div class="ui menu">
+      {{#link-to 'project.detail.log' model class='item'}}Log{{/link-to}}
+      {{#link-to 'project.detail.commands' model class='item'}}Commands{{/link-to}}
+      {{#link-to 'project.detail.install.addon' class='item' current-when='project.detail.install'}}Packages{{/link-to}}
+      {{#link-to 'project.detail.settings' model class='item'}}Project settings{{/link-to}}
+      {{#link-to 'project.detail.statistics' model class='item'}}Statistics{{/link-to}}
+      {{#link-to 'project.detail.model-maker' model class='item'}}Model maker{{/link-to}}
     </div>
     <div class="flex-fill">
       {{outlet}}

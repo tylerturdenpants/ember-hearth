@@ -1,0 +1,33 @@
+<div class="log-line__command {{if hasOut 'cursor-pointer'}}" {{action 'toggleShowOut'}}>
+    <div class="log-line__prompt">
+      {{#if command.running}}
+          <i class="icon asterisk loading yellow" title="started"></i>
+      {{else}}
+        {{#if command.succeeded}}
+            <i class="icon check green" title="running"></i>
+        {{else}}
+            <i class="icon remove red" title="running"></i>
+        {{/if}}
+      {{/if}}
+    </div>
+    <div class="log-line__bin">{{command.bin}}</div>
+    <div class="log-line__name">{{command.name}}</div>
+    <div class="log-line__args">{{command.args}}</div>
+    <div class="log-line__options">{{#each-in command.options as |name value|}}--{{name}} {{value}} {{/each-in}}</div>
+  {{#if hasOut}}
+      <div class="log-line__toggle">
+          <i class="icon caret {{if showOut 'down' 'left'}}"></i>
+      </div>
+  {{/if}}
+</div>
+
+<div class="log-line__out">
+  {{#if showOut}}
+    {{#each command.stdout as |out|}}
+        <pre class="log-line__stdout">{{out}}</pre>
+    {{/each}}
+    {{#each command.stderr as |out|}}
+        <pre class="log-line__stderr">{{out}}</pre>
+    {{/each}}
+  {{/if}}
+</div>

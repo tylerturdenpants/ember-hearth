@@ -7,7 +7,7 @@ function flatten(array) {
 }
 
 export default Ember.Component.extend({
-  classNames: ['ui segment'],
+  classNames: ['ember-command'],
 
   commander: service(),
   store: service(),
@@ -76,6 +76,11 @@ export default Ember.Component.extend({
       this.get('anonymousFields')[idx] = ev.target.value;
     },
     runCmd(){
+      if (this.get('createdCommand.running')){
+        // if command is already running, do nothin
+        return;
+      }
+
       const store = this.get('store');
       const blueprint = this.get('selectedBlueprint');
       const project = this.get('project');

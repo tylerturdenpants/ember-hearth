@@ -1,6 +1,10 @@
 body {
   margin: 0;
   padding: 0;
+  background: #ededed;
+}
+.base-col:first-child{
+  background: #fff;
 }
 
 /*
@@ -121,6 +125,133 @@ body > div > .container > .grid{
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   padding: 0 !important;
+}
+
+.ui.corner.label.addon{
+  border-color: #FFF176;
+  color: #F9A825;
+}
+.ui.corner.label.project{
+  border-color: #64B5F6;
+  color: #1565C0;
+}
+
+.log-line{
+  font-size: 14px;
+  font-family: 'Iosevka', monospace;
+}
+.log-line__command{
+  position: relative;
+  background: #fff;
+  border-bottom: 1px solid #eaeaea;
+  padding: 5px;
+}
+.log-line__out{
+  background: #fafafa;
+  max-height: 200px;
+  overflow: auto;
+}
+.log-line__bin,
+.log-line__name,
+.log-line__args,
+.log-line__options,
+.log-line__prompt,
+.log-line__status
+{
+  display: inline-block;
+  vertical-align: middle;
+}
+.log-line__toggle{
+  position: absolute;
+  right: 5px;
+  top: 6px;
+}
+.log-line__name{
+  font-weight: bold;
+}
+
+.log-line__stdout,
+.log-line__stderr
+{
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.3;
+  font-family: 'Iosevka', monospace;
+  margin: 0 0 2px 0;
+  border-left: 3px solid transparent;
+}
+.log-line__stdout::before,
+.log-line__stderr::before
+{
+  content: '>';
+  margin-right: 5px;
+}
+.log-line__stderr{
+  border-left-color: #b94a48;
+}
+.log-line__stdout{
+  border-left-color: #2185D0;
+}
+.segment-outline{
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(34,36,38,.15);
+  border: 1px solid rgba(34,36,38,.15);
+  border-radius: .28571429rem;
+}
+
+
+.ember-addon-command-head{
+}
+
+.ember-command{
+  position: relative;
+  margin-bottom: 10px;
+}
+.ember-command__created-command .log-line__command{
+  border-top: 1px solid #eaeaea;
+  border-bottom: 0;
+}
+.ember-command__run{
+
+}
+.ember-command__head{
+  border-top: 1px solid #eaeaea;
+  background: #fff;
+  position: relative;
+}
+.ember-command__short
+{
+  display: inline-block;
+  padding: 15px 10px;
+}
+.ember-command__options{
+  border-top: 1px solid #eaeaea;
+  background: #fafafa;
+}
+.ember-command__name{
+  font-size: 16px;
+  font-weight: bold;
+}
+.ember-command__description{
+  color: #666;
+}
+.ember-command__name,
+.ember-command__run,
+.ember-command__toggle,
+.ember-command__description
+{
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.ember-command__run{
+  position: relative;
+  right: 10px;
+  top: 10px;
+}
+
+.ember-command__options{
+  padding: 5px;
 }
 
 @media (min-width: 1200px) and (max-width: 1400px){
