@@ -22,6 +22,11 @@
                         </td>
                         <td>{{version}}</td>
                     </tr>
+                {{else}}
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
                 {{/each-in}}
                 </tbody>
             </table>
@@ -51,6 +56,11 @@
                             <span {{action 'openExternal' (concat "https://www.npmjs.com/package/" name)}}>{{name}}</span>
                         </td>
                         <td>{{version}}</td>
+                    </tr>
+                {{else}}
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
                     </tr>
                 {{/each-in}}
                 </tbody>
