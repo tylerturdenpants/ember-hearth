@@ -97,6 +97,10 @@ class Hearth {
       console.log('hearth-kill-cmd', message.data);
       this.commander.killCommand(message, message.data);
     });
+    this.messenger.onDeserialized('hearth-sync-project', 'project', (message) => {
+      this.refreshProjects()
+        .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects));
+    });
     this.messenger.onDeserialized('hearth-update-project', 'project', (message) => {
       this.updateProject(message.data)
         .then(() => this.refreshProjects())

@@ -14,15 +14,11 @@ Router.map(function() {
       this.route('log');
       this.route('settings');
       this.route('model-maker');
-
-      this.route('install', function() {
-        this.route('addon');
-        this.route('npm');
-        this.route('bower');
-      });
+      this.route('install');
     });
     this.route('new');
   });
+  this.route("404", { path: "*path"});
 });
 
 export default Router;

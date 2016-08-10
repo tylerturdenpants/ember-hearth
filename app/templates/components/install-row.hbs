@@ -1,0 +1,33 @@
+<td class="center aligned">
+  {{#if package.score}}
+      <span class="ui teal circular label">{{package.score}}</span>
+  {{/if}}
+</td>
+<td><a class="cursor-pointer" {{action (route-action 'openExternal' package.link)}}>{{package.name}}</a></td>
+<td>{{package.version}}</td>
+<td>
+  {{#if command.running}}
+      <button class="ui fluid icon loading button" {{action 'install'}}>
+          Installing
+      </button>
+  {{else}}
+    {{#if hasInstalled}}
+      {{#if canUninstall}}
+          <button class="ui negative fluid labeled icon button" {{action 'uninstall'}}>
+              <i class="remove icon"></i>
+              Uninstall
+          </button>
+      {{else}}
+          <button disabled class="ui fluid labeled icon positive button">
+              <i class="checkmark icon"></i>
+              Installed
+          </button>
+      {{/if}}
+    {{else}}
+        <button class="ui fluid labeled icon button" {{action 'install'}}>
+            <i class="plus icon"></i>
+            Install
+        </button>
+    {{/if}}
+  {{/if}}
+</td>
