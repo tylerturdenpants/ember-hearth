@@ -234,6 +234,10 @@ body > div > .container > .grid{
 }
 .ember-command__description{
   color: #666;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ember-command__name,
 .ember-command__run,
@@ -253,6 +257,7 @@ body > div > .container > .grid{
 .ember-command__options{
   padding: 5px;
 }
+
 
 @media (min-width: 1200px) and (max-width: 1400px){
   .application-controls .ui.labeled.icon.button{
