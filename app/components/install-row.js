@@ -7,6 +7,7 @@ export default Ember.Component.extend({
   tagName: '',
 
   ipc: service(),
+  electron: service(),
   commander: service(),
 
   command: undefined,
@@ -25,6 +26,9 @@ export default Ember.Component.extend({
     }),
 
   actions: {
+    openExternal(url){
+      this.get('electron.shell').openExternal(url);
+    },
     uninstall(){
 
     },
