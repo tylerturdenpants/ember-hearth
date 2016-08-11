@@ -12,6 +12,21 @@ export default Ember.Route.extend({
     }
   },
 
+  findAllProjectPackages() {
+    const project = this.modelFor('project.detail');
+    const devDependencies = (project.get('package.devDependencies') || {});
+    const dependencies = (project.get('package.dependencies') || {});
+
+    return Object.keys(devDependencies).concat(Object.keys(dependencies)).map(dependency => {
+      return Ember.Object.create({
+        name: dependency,
+        description: '',
+        link: `https://www.npmjs.com/package/${dependency}`,
+        final: 0
+      });
+    });
+  },
+
   loadPackages(packageSource, packageQuery) {
     if (packageSource === 'addon') {
       const stored = this.get('store').peekAll(packageSource);
@@ -22,7 +37,7 @@ export default Ember.Route.extend({
       });
     } else {
       if (packageQuery.length === 0) {
-        return RSVP.resolve([]);
+        return RSVP.resolve(this.findAllProjectPackages());
       }
       return this.get('store').query(packageSource, {term: packageQuery, from: 0, size: 10});
     }

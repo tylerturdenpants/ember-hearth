@@ -3,7 +3,7 @@
       <span class="ui teal circular label">{{package.score}}</span>
   {{/if}}
 </td>
-<td><a class="cursor-pointer" {{action (route-action 'openExternal' package.link)}}>{{package.name}}</a></td>
+<td><a class="cursor-pointer" {{action 'openExternal' package.link}}>{{package.name}}</a></td>
 <td>{{package.version}}</td>
 <td>
   {{#if command.running}}
