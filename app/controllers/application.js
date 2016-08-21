@@ -1,10 +1,10 @@
 import Ember from 'ember';
 
-const {inject} = Ember;
+const {inject: {service}} = Ember;
 
 export default Ember.Controller.extend({
-  ipc: inject.service(),
-  electron: inject.service(),
+  ipc: service(),
+  electron: service(),
 
   ready: false,
   model: [],
@@ -42,6 +42,9 @@ export default Ember.Controller.extend({
     ipc.on('open-project', ipc.deserializedCallback('project', (ev, project) => {
       this.transitionToRoute('project.detail', project);
     }));
+    ipc.on('open-route', (ev, route, models = []) => {
+      this.transitionToRoute(route, ...models);
+    });
     ipc.on('cmd-close', ipc.deserializedCallback('command', (ev, command, code) => {
       command.set('running', false);
       if (code === 0) {

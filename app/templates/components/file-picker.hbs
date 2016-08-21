@@ -1,11 +1,11 @@
 <div class="{{if path 'ui labeled button'}}" tabindex="0">
     <div class="ui button" {{action 'setPath'}}>
-        <i class="folder outline icon"></i> Select directory
+        <i class="file outline icon"></i> Select file
     </div>
   {{#if path}}
       <a class="ui basic left pointing label">{{path}}</a>
   {{/if}}
 </div>
 {{#if path}}
-    <div class="ui basic icon button" title="clear directory path" {{action 'clearPath'}}><i class="remove icon"></i></div>
+<div class="ui basic icon button" title="clear file path" {{action 'clearPath'}}><i class="remove icon"></i></div>
 {{/if}}

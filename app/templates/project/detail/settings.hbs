@@ -1,12 +1,8 @@
 {{outlet}}
 
-<div class="ui segment">
-    <h4 class="ui header">Project settings</h4>
-
-    <div class="ui divider"></div>
-
-    <form class="ui form" {{action 'saveChanges' on='submit'}}>
-
+<form class="ui form" {{action 'saveChanges' on='submit'}}>
+    <h4 class="ui top attached header">Project settings</h4>
+    <div class="ui attached segment">
         <div class="equal width fields">
             <div class="field">
                 <div class="ui checkbox">
@@ -98,6 +94,8 @@
           value=environment}}
         </div>
 
+    </div>
+    <div class="ui bottom attached segment">
         <button class="ui primary button" tabindex="0">Save changes</button>
-    </form>
-</div>
+    </div>
+</form>

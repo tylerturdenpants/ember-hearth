@@ -5,6 +5,7 @@ const {inject:{service}} = Ember;
 export default Ember.Component.extend({
   electron: service(),
   path: '',
+
   actions: {
     clearPath(){
       this.set('path', '');
@@ -12,7 +13,7 @@ export default Ember.Component.extend({
     },
     setPath(){
       const dialog = this.get('electron.remote.dialog');
-      const dirs = dialog.showOpenDialog({properties: ['openDirectory']});
+      const dirs = dialog.showOpenDialog({properties: ['openFile']});
 
       if (dirs.length) {
         this.set('path', dirs[0]);

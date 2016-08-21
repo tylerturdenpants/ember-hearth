@@ -1,7 +1,8 @@
 const path = require('path');
-const {Tray, Menu} = require('electron');
+const {Tray, Menu, MenuItem, remote} = require('electron');
 const DB = require('./lib/db');
 const Commander = require('./lib/commander');
+const Config = require('./lib/config');
 const Serializer = require('./lib/serializer');
 const Messenger = require('./lib/messenger');
 const Promise = require('bluebird');
@@ -19,11 +20,67 @@ class Hearth {
     this.processes = {};
 
     this.db = new DB(app.getPath('userData'));
+    this.config = new Config(app.getPath('userData'));
     this.serializer = new Serializer();
     this.messenger = new Messenger(ipc);
-    this.commander = new Commander(this.db, this.messenger);
+    this.commander = new Commander(this.db, this.messenger, this.config);
     this.resetTray();
     this.attachListeners();
+    this.updateMenu();
+  }
+
+  updateMenu() {
+    let applicationMenu = Menu.getApplicationMenu();
+    if (applicationMenu === null) {
+      applicationMenu = new Menu()
+    }
+
+    const submenu = [];
+
+    if (process.platform === 'darwin') {
+      submenu.push({
+        role: 'about'
+      }, {
+        type: 'separator'
+      }, {
+        label: 'Preferences',
+        click: () => this.window.webContents.send('open-route', 'settings')
+      }, {
+        type: 'separator'
+      }, {
+        role: 'services',
+        submenu: []
+      }, {
+        type: 'separator'
+      }, {
+        role: 'hide'
+      }, {
+        role: 'hideothers'
+      }, {
+        role: 'unhide'
+      }, {
+        type: 'separator'
+      }, {
+        role: 'quit'
+      });
+    } else {
+      submenu.push({
+        label: 'Settings',
+        click: () => this.window.webContents.send('open-route', 'settings')
+      });
+    }
+
+    const menuItem = new MenuItem({
+      label: this.app.getName(),
+      submenu: submenu
+    });
+    applicationMenu.insert(0, menuItem);
+    Menu.setApplicationMenu(applicationMenu);
+  }
+
+  updateConfig(fields) {
+    this.config.fields = fields;
+    this.config.save();
   }
 
   attachListeners() {
@@ -77,6 +134,13 @@ class Hearth {
           .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects))
           .then(() => this.messenger.replySerialized(message, 'open-project', 'project', project)))
         .catch(() => this.messenger.reply(message, 'project-not-ember-app', projectPath));
+    });
+
+    this.messenger.on('hearth-emit-config', message => {
+      this.messenger.reply(message, 'hearth-config', this.config.fields);
+    });
+    this.messenger.on('hearth-update-config', message => {
+      this.updateConfig(message.data);
     });
 
     this.messenger.onDeserialized('hearth-remove-project', 'project', (message) => {

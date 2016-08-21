@@ -3,24 +3,32 @@
 const Term = require('./index');
 
 class Win32Term extends Term {
-  spawn(bin, args, spawnOptions) {
+  fixSpawnArguments(node, args) {
     // patch windows spawn call
-    //TODO: maybe not expect `node` to exist
-    args.unshift('node', bin);
-    bin = 'powershell.exe';
-    return super.spawn(bin, args, spawnOptions);
+    if (node === undefined) {
+      // add node as arg (in hope that's in the global Path/PATH)
+      args.unshift('node');
+      node = 'powershell.exe';
+    }
+    return [node, args];
   }
 
   buildTermLaunchArgs(scriptPath) {
     return [process.env.ComSpec, ['/C', `start ${process.env.ComSpec} /C ${scriptPath}`]];
   }
 
-  buildRunScript(bin, args, projectDir) {
+  buildRunScript(bin, args, projectDir, hasFullBinaryPath = false) {
     const suffix = '.cmd';
+    let scriptContent = '';
 
-    // based on npm generated bin/command.cmd
-    const scriptContent = `
-
+    if (hasFullBinaryPath) {
+      scriptContent = `
+  cd /d ${projectDir}
+  "${bin}"  "${args.join('" "')}"
+  `;
+    } else {
+      // based on npm generated bin/command.cmd
+      scriptContent = `
 cd /d ${projectDir}
 
 @IF EXIST "%~dp0\\node.exe" (
@@ -31,6 +39,7 @@ cd /d ${projectDir}
   node  "${bin}"  "${args.join('"  "')}"
 )
 `;
+    }
 
     return {
       content: scriptContent,

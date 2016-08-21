@@ -11,21 +11,32 @@ class Term {
   constructor(){
 
   }
-  spawn(bin, args, spawnOptions) {
-    console.log('term.spawn', bin, args, spawnOptions);
-    return spawn(bin, args, spawnOptions);
+
+  fixSpawnArguments(node, args) {
+    if (node === undefined) {
+      // if no custom node path, use the first arg as script
+      node = args.shift();
+    }
+    return [node, args];
+  }
+
+  spawn(node, args, spawnOptions) {
+    const fixed = this.fixSpawnArguments(node, args);
+    console.log('term.spawn', ...fixed, spawnOptions);
+    return spawn(...fixed, spawnOptions);
   }
 
   buildTermLaunchArgs(/*scriptPath*/) {
     throw 'not implemented';
   }
 
-  buildRunScript(/*bin, args, projectDir*/) {
+  buildRunScript(/*bin, args, projectDir, hasFullBinaryPath*/) {
     throw 'not implemented';
   }
 
-  buildCommandScript(bin, args, projectDir) {
-    let script = this.buildRunScript(bin, args, projectDir);
+  buildCommandScript(node, args, projectDir) {
+    const fixed = this.fixSpawnArguments(node, args);
+    let script = this.buildRunScript(...fixed, projectDir, node !== undefined);
     const content = script.content;
     const suffix = script.suffix;
 
