@@ -7,6 +7,7 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  this.route('settings');
   this.route('project', function() {
     this.route('detail', {path: '/:project_id'}, function() {
       this.route('statistics');

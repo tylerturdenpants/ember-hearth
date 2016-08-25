@@ -1,7 +1,7 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 
-moduleForComponent('dir-picker', 'Integration | Component | dir picker', {
+moduleForComponent('file-picker', 'Integration | Component | file picker', {
   integration: true
 });
 
@@ -13,7 +13,7 @@ test('it renders', function(assert) {
     remote: {
       dialog: {
         showOpenDialog(options){
-          assert.ok(options.properties.indexOf('openDirectory') !== -1, 'calls showOpenDialog with openDirectory');
+          assert.ok(options.properties.indexOf('openFile') !== -1, 'calls showOpenDialog with openFile');
           return [testPath];
         }
       }
@@ -24,8 +24,7 @@ test('it renders', function(assert) {
     assert.equal(path, testPath);
     done();
   });
-
-  this.render(hbs`{{dir-picker electron=electron changedPath=(action 'changedPath')}}`);
+  this.render(hbs`{{file-picker electron=electron changedPath=(action 'changedPath')}}`);
 
   this.$('.ui.button').click();
 });

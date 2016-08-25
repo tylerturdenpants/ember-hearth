@@ -1,0 +1,24 @@
+<div class="flex flex-column full-viewport-height">
+    <div class="flex-fill">
+        <form class="ui form" {{action 'save' on='submit'}}>
+            <h4 class="ui top attached header">Hearth settings</h4>
+            <div class="ui attached segment">
+                <div class="field">
+                    <div class="fields">
+                        <div class="eight wide field">
+                            <label>custom node binary (leave blank to use <code>PATH</code>)</label>
+                          {{file-picker path=nodePath changedPath=(action 'changeNodePath')}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom attached segment">
+                <button class="ui primary button" tabindex="0">Save changes</button>
+                <button class="ui basic icon button" title="reset changes" {{action 'reset'}}>
+                    <i class="refresh icon"></i>
+                </button>
+            </div>
+        </form>
+      {{outlet}}
+    </div>
+</div>
