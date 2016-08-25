@@ -1,8 +1,8 @@
 <div class="flex flex-column absolute-fill">
     <div class="flex-fill">
         <div class="absolute-fill flex flex-column">
-            <div class="ui left action icon fluid input">
-                <select class="ui compact selection dropdown"
+            <div class="ui icon fluid input">
+                <select class="ui compact dropdown"
                         onchange={{action (mut packageSource) value="target.value"}}>
                   {{#each availableSources as |source|}}
                       <option value="{{source}}" selected={{eq source packageSource}}>{{source}}</option>
