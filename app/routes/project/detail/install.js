@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-const {RSVP} = Ember;
+const {RSVP, assign} = Ember;
 
 export default Ember.Route.extend({
   queryParams: {
@@ -12,38 +12,51 @@ export default Ember.Route.extend({
     }
   },
 
-  findAllProjectPackages() {
-    const project = this.modelFor('project.detail');
+  projectDependencies(project){
     const devDependencies = (project.get('package.devDependencies') || {});
     const dependencies = (project.get('package.dependencies') || {});
 
-    return Object.keys(devDependencies).concat(Object.keys(dependencies)).map(dependency => {
-      return Ember.Object.create({
+    return assign({}, devDependencies, dependencies);
+  },
+
+  loadNpmPackages(packageQuery) {
+    let packages;
+    if (packageQuery.length === 0) {
+      const dependencies = this.projectDependencies(this.modelFor('project.detail'));
+      packages = RSVP.resolve(Object.keys(dependencies).map(dependency => Ember.Object.create({
         name: dependency,
         description: '',
         link: `https://www.npmjs.com/package/${dependency}`,
         final: 0
-      });
-    });
+      })));
+    } else {
+      packages = this.get('store').query('npm', {term: packageQuery, from: 0, size: 10});
+    }
+    return packages;
   },
 
-  loadPackages(packageSource, packageQuery) {
-    if (packageSource === 'addon') {
-      const stored = this.get('store').peekAll(packageSource);
-      const findPromise = stored.get('length') ? Promise.resolve(stored) : this.get('store').findAll(packageSource);
+  loadAddonPackages(packageQuery) {
+    const stored = this.get('store').peekAll('addon');
+    const findPromise = stored.get('length') ? Promise.resolve(stored) : this.get('store').findAll('addon');
+    const dependencies = this.projectDependencies(this.modelFor('project.detail'));
+    const filterAddons = packageQuery.length ?
+      pkg => pkg.get('name').indexOf(packageQuery) !== -1 :
+      pkg => dependencies.hasOwnProperty(pkg.get('name'));
 
-      return findPromise.then(packages => {
-        return packages.filter(pkg => pkg.get('name').indexOf(packageQuery) !== -1);
-      });
-    } else {
-      if (packageQuery.length === 0) {
-        return RSVP.resolve(this.findAllProjectPackages());
-      }
-      return this.get('store').query(packageSource, {term: packageQuery, from: 0, size: 10});
-    }
+    return findPromise
+      .then(packages => packages.filter(filterAddons));
   },
 
   model({packageSource, packageQuery}){
-    return this.loadPackages(packageSource, packageQuery);
+    let packages = [];
+    switch (packageSource) {
+    case 'npm':
+      packages = this.loadNpmPackages(packageQuery);
+      break;
+    case 'addon':
+      packages = this.loadAddonPackages(packageQuery);
+      break;
+    }
+    return packages;
   }
 });
