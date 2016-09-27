@@ -28,15 +28,21 @@ export default Ember.Route.extend({
   },
 
   afterModel(model){
-    let store = this.get('store');
-    this.get('commander').start(store.createRecord('command', {
-      bin: 'ember',
-      id: uuid.v4(),
-      name: 'help',
-      args: ['--json'],
+    const store = this.get('store');
+    const helpCommands = model.get('commands')
+      .filter(command => command.get('isHelp'));
 
-      project: model
-    }));
+    if (helpCommands.get('length') === 0 ||
+      helpCommands.every(command => command.get('failed'))) {
+      this.get('commander').start(store.createRecord('command', {
+        bin: 'ember',
+        id: uuid.v4(),
+        name: 'help',
+        args: ['--json'],
+
+        project: model
+      }));
+    }
   },
 
   deactivate(){

@@ -18,7 +18,7 @@ export default Ember.Controller.extend({
 
   helpCommand: computed('model.commands.[]', function () {
     return this.get('model.commands')
-      .filter(cmd => cmd.get('name') === 'help' && cmd.get('args.firstObject') === '--json')
+      .filter(cmd => cmd.get('isHelp'))
       .get('lastObject');
   }),
 

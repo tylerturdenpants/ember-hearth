@@ -37,7 +37,7 @@ export default Ember.Route.extend({
 
   loadAddonPackages(packageQuery) {
     const stored = this.get('store').peekAll('addon');
-    const findPromise = stored.get('length') ? Promise.resolve(stored) : this.get('store').findAll('addon');
+    const findPromise = stored.get('length') ? RSVP.resolve(stored) : this.get('store').findAll('addon');
     const dependencies = this.projectDependencies(this.modelFor('project.detail'));
     const filterAddons = packageQuery.length ?
       pkg => pkg.get('name').indexOf(packageQuery) !== -1 :

@@ -52,7 +52,15 @@ export default Ember.Controller.extend({
     },
 
     commandFinished(){
-      this.get('ipc').trigger('hearth-update-project', this.get('ipc').serialize('project', this.get('project')))
+      const project = this.get('project');
+      this.get('ipc').trigger('hearth-update-project', this.get('ipc').serialize('project', project));
+      this.get('commander').start(this.get('store').createRecord('command', {
+        bin: 'ember',
+        id: uuid.v4(),
+        name: 'help',
+        args: ['--json'],
+        project
+      }))
     },
     runCommand(command){
       return this.get('commander').start(command);
