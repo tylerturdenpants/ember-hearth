@@ -2,7 +2,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 
 const {attr, belongsTo} = DS;
-const {K} = Ember;
+const {K, computed} = Ember;
 
 export default DS.Model.extend({
   bin: attr('string'),
@@ -15,6 +15,11 @@ export default DS.Model.extend({
   running: false,
   succeeded: false,
   failed: false,
+
+  isHelp: computed('name', 'args.[]', function(){
+    return this.get('name') === 'help' &&
+      this.get('args.firstObject') === '--json';
+  }),
 
   stdout: [],
   stderr: [],
