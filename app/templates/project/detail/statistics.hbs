@@ -1,4 +1,42 @@
 <div class="ui basic segment">
+
+    <h3 class="ui header">
+        <div class="content">Asset-Sizes</div>
+    </h3>
+
+    <div class="ui segment">
+        <div class="ui content">
+            {{#if assetSizesCommand.succeeded}}
+              <table class="ui compact very basic table">
+                  <thead>
+                  <tr>
+                      <th>File</th>
+                      <th>Size</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {{#each assetSizes as |assetSize|}}
+                      <tr>
+                          <td>{{assetSize.name}}</td>
+                          <td>{{assetSize.size}}</td>
+                      </tr>
+                  {{else}}
+                      <tr>
+                          <td>-</td>
+                          <td>-</td>
+                      </tr>
+                  {{/each}}
+                  </tbody>
+              </table>
+            {{else}}
+              <p>
+                  <button class="ui primary basic fluid {{if isLoadingAssetSizes 'loading'}} button" {{action 'refreshAssetsSizes'}}>Generate asset sizes</button>
+              </p>
+              <p><strong>Note:</strong> This will run a production build</p>
+            {{/if}}
+        </div>
+    </div>
+
     <h3 class="ui header">
         <div class="content">Dependencies</div>
     </h3>
