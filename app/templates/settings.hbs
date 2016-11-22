@@ -4,11 +4,19 @@
             <h4 class="ui top attached header">Hearth settings</h4>
             <div class="ui attached segment">
                 <div class="field">
-                    <div class="fields">
-                        <div class="eight wide field">
-                            <label>custom node binary (leave blank to use <code>PATH</code>)</label>
-                          {{file-picker path=nodePath changedPath=(action 'changeNodePath')}}
-                        </div>
+                    <label>custom node binary (leave blank to use <code>PATH</code>)</label>
+                  {{file-picker path=nodePath changedPath=(action 'changeNodePath')}}
+                    <div class="ui divider"></div>
+                    <div>
+                        <button class="ui primary labeled icon button {{if installCommand.running 'loading'}}" disabled={{installCommand.running}} {{action 'installCustomNode'}}>
+                            <i class="plug icon"></i>
+                            Install and use latest lts node
+                        </button>
+                      {{#if installCommand}}
+                        <br>
+                        <br>
+                        {{log-line class='log-line--embedded' command=installCommand}}
+                      {{/if}}
                     </div>
                 </div>
             </div>

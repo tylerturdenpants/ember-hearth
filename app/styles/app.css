@@ -146,6 +146,9 @@ body > div > .container > .grid{
   border-bottom: 1px solid #eaeaea;
   padding: 5px;
 }
+.log-line--embedded .log-line__command{
+  border-bottom: 0;
+}
 .log-line__out{
   background: #fafafa;
   max-height: 200px;

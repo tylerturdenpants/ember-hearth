@@ -9,6 +9,7 @@ const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const files = Promise.promisify(require('node-dir').files);
 const jsonminify = require("jsonminify");
+const NodeInstaller = require('./lib/installer/node');
 
 class Hearth {
   constructor(app, window, ipc) {
@@ -21,6 +22,7 @@ class Hearth {
 
     this.db = new DB(app.getPath('userData'));
     this.config = new Config(app.getPath('userData'));
+    this.nodeInstaller = new NodeInstaller(this.app.getPath('userData'));
     this.serializer = new Serializer();
     this.messenger = new Messenger(ipc);
     this.commander = new Commander(this.db, this.messenger, this.config);
@@ -151,6 +153,22 @@ class Hearth {
       this.db.removeProjectById(project.id)
         .then(() => this.refreshProjects())
         .then(projects => this.messenger.replySerialized(message, 'project-list', 'project', projects));
+    });
+
+    this.messenger.on('hearth-installer-node-install', (message) => {
+      if (!this.nodeInstaller.installing) {
+        this.messenger.reply(message, 'hearth-installer-node-install-started');
+        this.nodeInstaller.on('progress',
+          ev => this.messenger.reply(message, 'hearth-installer-node-install-progress', ev.message));
+
+        this.nodeInstaller.install()
+          .then(node => this.messenger.reply(message, 'hearth-installer-node-install-finished', {node, path: this.nodeInstaller.nodePath}))
+          .catch(e => {
+            this.messenger.reply(message, 'hearth-installer-node-install-failed', e);
+            console.error('installation error', e);
+          })
+          .finally(() => this.nodeInstaller.removeAllListeners());
+      }
     });
 
     this.messenger.onDeserialized('hearth-run-cmd', 'command', (message) => {

@@ -31,7 +31,7 @@ class Config {
     try{
       fileContent = JSON.parse(fs.readFileSync(this._file, {encoding: 'utf8'}));
     }catch(e){
-      console.error('couln\'t parse config:', e);
+      console.error('couldn\'t parse config:', e);
       process.exit(1);
     }
 
