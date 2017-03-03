@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { v4 } from 'uuid';
 
 const {computed, run, inject:{service, controller}} = Ember;
 
@@ -56,7 +57,7 @@ export default Ember.Controller.extend({
       this.get('ipc').trigger('hearth-update-project', this.get('ipc').serialize('project', project));
       this.get('commander').start(this.get('store').createRecord('command', {
         bin: 'ember',
-        id: uuid.v4(),
+        id: v4(),
         name: 'help',
         args: ['--json'],
         project

@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { v4 } from 'uuid';
 
 const {inject:{service}, computed, get} = Ember;
 
@@ -60,7 +61,7 @@ export default Ember.Controller.extend({
 
       function startAssetSizesCommand(){
         commander.start(store.createRecord('command', {
-          id: uuid.v4(),
+          id: v4(),
           bin: 'ember',
           name: 'asset-sizes',
           args: [],
@@ -73,7 +74,7 @@ export default Ember.Controller.extend({
         startAssetSizesCommand();
       } else {
         commander.start(store.createRecord('command', {
-          id: uuid.v4(),
+          id: v4(),
           bin: 'ember',
           name: 'build',
           args: ['-prod'],

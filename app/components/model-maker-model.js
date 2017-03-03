@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import {attrToArg} from 'ember-hearth/utils/model-maker';
+import { v4 } from 'uuid';
 
 const {inject:{service}} = Ember;
 
@@ -43,7 +44,7 @@ export default Ember.Component.extend({
 
       const command = store.createRecord('command', {
         bin: 'ember',
-        id: uuid.v4(),
+        id: v4(),
         name: 'g',
         inTerm: true,
         args: ['model', model.name].concat(attrs),

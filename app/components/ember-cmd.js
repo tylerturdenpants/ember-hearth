@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { v4 } from 'uuid';
 
 const {computed, inject: {service}} = Ember;
 
@@ -88,7 +89,7 @@ export default Ember.Component.extend({
 
       const command = store.createRecord('command', {
         bin: 'ember',
-        id: uuid.v4(),
+        id: v4(),
         name: this.get('cmd.name'),
         options: this.get('options'),
         args: flatten((blueprint ? [blueprint.name] : [])
