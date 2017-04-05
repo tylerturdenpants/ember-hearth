@@ -1,5 +1,5 @@
 const path = require('path');
-const {Tray, Menu, MenuItem, remote} = require('electron');
+const {Tray, Menu, MenuItem} = require('electron');
 const DB = require('./lib/db');
 const Commander = require('./lib/commander');
 const Config = require('./lib/config');

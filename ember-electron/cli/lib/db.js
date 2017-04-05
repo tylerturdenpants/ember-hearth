@@ -1,5 +1,5 @@
 const path = require('path');
-const uuid = require('node-uuid');
+const v4 = require('uuid/v4');
 const mkdirp = require('mkdirp');
 const Datastore = require('nedb');
 const Promise = require('bluebird');
@@ -42,7 +42,7 @@ class DB {
 
   insertProjectByPath(projectPath) {
     return this.store.projects.insertAsync({
-      id: uuid.v4(),
+      id: v4(),
       path: projectPath,
       name: path.basename(projectPath)
     });

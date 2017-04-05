@@ -8,7 +8,7 @@
           <div class="filter-list">
             {{#each addons as |addon|}}
                 <div class="filter-list-item" {{action "toggleAddonFilter" addon}}>
-                  {{#if (inArray addonsFilter addon.name)}}
+                  {{#if (in-array addonsFilter addon.name)}}
                       <i class="blue radio icon"></i>
                   {{else}}
                       <i class="blue selected radio icon"></i>

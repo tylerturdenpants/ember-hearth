@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { v4 } from 'uuid';
 
 const {inject, computed} = Ember;
 
@@ -17,7 +18,7 @@ export default Ember.Controller.extend({
     startServer(){
       let store = this.get('store');
       const command = store.createRecord('command', {
-        id: uuid.v4(),
+        id: v4(),
         bin: 'ember',
         name: 's',
         args: [],

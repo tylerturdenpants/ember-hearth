@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import InstallRow from './install-row';
 import layout from '../templates/components/install-row';
+import { v4 } from 'uuid';
 
 const {inject:{service}} = Ember;
 
@@ -17,7 +18,7 @@ export default InstallRow.extend({
       const store = this.get('store');
 
       const command = store.createRecord('command', {
-        id: uuid.v4(),
+        id: v4(),
         bin: 'ember',
         name: 'install',
         args: [this.get('package.name')],

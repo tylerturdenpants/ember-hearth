@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { v4 } from 'uuid';
 
 const {run, inject, RSVP} = Ember;
 const POLL_TIMEOUT = 2.5 * 1000;
@@ -36,7 +37,7 @@ export default Ember.Route.extend({
       helpCommands.every(command => command.get('failed'))) {
       this.get('commander').start(store.createRecord('command', {
         bin: 'ember',
-        id: uuid.v4(),
+        id: v4(),
         name: 'help',
         args: ['--json'],
 
