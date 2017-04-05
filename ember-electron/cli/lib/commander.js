@@ -3,8 +3,8 @@ const term = require('./term');
 const Promise = require('bluebird');
 
 const binaries = {
-  ember: path.join(__dirname, '..', '..', 'node_modules', 'ember-cli', 'bin', 'ember'),
-  npm: path.join(__dirname, '..', '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
+  ember: path.join(__dirname, '..', '..', '..', 'node_modules', 'ember-cli', 'bin', 'ember'),
+  npm: path.join(__dirname, '..', '..', '..', 'node_modules', 'npm', 'bin', 'npm-cli.js')
 };
 
 class Commander {

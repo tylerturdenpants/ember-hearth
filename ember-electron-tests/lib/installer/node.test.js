@@ -1,5 +1,5 @@
 const assert = require('assert');
-const NodeInstaller = require('../../../cli/lib/installer/node');
+const NodeInstaller = require('../../../ember-electron/cli/lib/installer/node');
 const tmp = require('temp');
 const path = require('path');
 const fs = require('fs');
