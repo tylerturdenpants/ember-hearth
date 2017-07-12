@@ -30,7 +30,7 @@ export default Ember.Route.extend({
         final: 0
       })));
     } else {
-      packages = this.get('store').query('npm', {term: packageQuery, from: 0, size: 10});
+      packages = this.get('store').query('npm', {q: packageQuery, from: 0, size: 10});
     }
     return packages;
   },

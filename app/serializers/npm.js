@@ -6,9 +6,9 @@ export default ApplicationSerializer.extend({
       data: payload.results.map(pkg => {
         const jsonapiPackage = {
           type: 'npm',
-          id: `${pkg.module.name}`,
+          id: `${pkg.package.name}`,
           attributes: {
-            ...pkg.module,
+            ...pkg.package,
             ...pkg.score
           }
         };
