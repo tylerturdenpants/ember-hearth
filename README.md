@@ -1,10 +1,11 @@
-# Ember-hearth
+# Ember Hearth
 [![Build Status](https://travis-ci.org/ember-learn/ember-hearth.svg?branch=master)](https://travis-ci.org/ember-learn/ember-hearth)
 
 ![Image](https://cldup.com/eXcj-NX6Nx.png)
 
-This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+Ember Hearth is a GUI application for creating and managing Ember applications.
+
+This effort has been put on hold. Contributors will focus on improving integration between Ember and text editors and IDEs.
 
 ## Prerequisites
 
