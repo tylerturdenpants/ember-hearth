@@ -1,9 +1,10 @@
-import Ember from 'ember';
-
-const {run, RSVP, inject:{service}} = Ember;
+import Route from '@ember/routing/route';
+import { run } from '@ember/runloop';
+import RSVP from 'rsvp';
+import { inject as service } from '@ember/service';
 const POLL_TIMEOUT = 2.5 * 1000;
 
-export default Ember.Route.extend({
+export default Route.extend({
   config: service(),
   _readyPoll: undefined,
 

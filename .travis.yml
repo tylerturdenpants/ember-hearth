@@ -15,17 +15,14 @@ cache:
   directories:
     - node_modules
     - $HOME/.npm
-    - $HOME/.cache # includes bowers cache
+
+env:
+  global:
+    # See https://git.io/vdao3 for details.
+    - JOBS=1
 
 before_install:
   - npm config set spin false
-  - npm install -g bower phantomjs-prebuilt
-  - bower --version
-  - phantomjs --version
-
-install:
-  - npm install
-  - bower install
 
 before_script:
   - export DISPLAY=:99.0
@@ -33,6 +30,7 @@ before_script:
   - sleep 3
 
 script:
+  - npm run lint:js
   - npm test
 
 before_deploy:

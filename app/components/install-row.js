@@ -1,8 +1,8 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 
-const {computed, inject:{service}} = Ember;
-
-export default Ember.Component.extend({
+export default Component.extend({
   // empty because sam is providing <tr>
   tagName: '',
 

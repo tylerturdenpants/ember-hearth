@@ -1,16 +1,18 @@
-import Ember from 'ember';
+import { alias, sort } from '@ember/object/computed';
+import { computed } from '@ember/object';
+import { run } from '@ember/runloop';
+import { inject as service } from '@ember/service';
+import Controller, { inject as controller } from '@ember/controller';
 import { v4 } from 'uuid';
 
-const {computed, run, inject:{service, controller}} = Ember;
-
-export default Ember.Controller.extend({
+export default Controller.extend({
   queryParams: ['packageSource', 'packageQuery'],
 
   ipc: service(),
   commander: service(),
   detail: controller('project/detail'),
 
-  project: computed.alias('detail.project'),
+  project: alias('detail.project'),
 
   availableSources: [
     // disable bower because we have no commands for it right now
@@ -29,7 +31,7 @@ export default Ember.Controller.extend({
   page: 0,
   minQueryLength: 3,
 
-  sortedModel: computed.sort('model.[]', function(a, b) {
+  sortedModel: sort('model.[]', function(a, b) {
     return b.get('score') - a.get('score');
   }),
 

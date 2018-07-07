@@ -1,10 +1,9 @@
-import Ember from 'ember';
-import {attrToArg} from 'ember-hearth/utils/model-maker';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
+import { attrToArg } from 'ember-hearth/utils/model-maker';
 import { v4 } from 'uuid';
 
-const {inject:{service}} = Ember;
-
-export default Ember.Component.extend({
+export default Component.extend({
   commander: service(),
   store: service(),
 

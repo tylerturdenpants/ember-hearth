@@ -1,11 +1,11 @@
-import Ember from 'ember';
+import { alias } from '@ember/object/computed';
+import Controller from '@ember/controller';
+import { computed } from '@ember/object';
 
-const {computed} = Ember;
-
-export default Ember.Controller.extend({
+export default Controller.extend({
   queryParams: ['addonsFilter'],
 
-  addons: computed.alias('help.addons'),
+  addons: alias('help.addons'),
   addonsFilter: [],
   filteredAddons: computed('addons.[]', 'addonsFilter.[]', function () {
     const filter = this.get('addonsFilter');

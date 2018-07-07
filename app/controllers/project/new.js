@@ -1,10 +1,9 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
 
-const {inject} = Ember;
-
-export default Ember.Controller.extend({
-  ipc: inject.service(),
-  electron: inject.service(),
+export default Controller.extend({
+  ipc: service(),
+  electron: service(),
 
   path: '',
   addon: false,

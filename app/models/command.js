@@ -1,8 +1,11 @@
+import { computed } from '@ember/object';
 import DS from 'ember-data';
 import Ember from 'ember';
 
 const {attr, belongsTo} = DS;
-const {K, computed} = Ember;
+const {
+  K
+} = Ember;
 
 export default DS.Model.extend({
   bin: attr('string'),

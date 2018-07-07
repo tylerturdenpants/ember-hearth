@@ -1,13 +1,13 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { v4 } from 'uuid';
-
-const {computed, inject: {service}} = Ember;
 
 function flatten(array) {
   return [].concat.apply([], array);
 }
 
-export default Ember.Component.extend({
+export default Component.extend({
   classNames: ['ember-command'],
 
   commander: service(),

@@ -1,13 +1,17 @@
 module.exports = {
   root: true,
+  parser: 'babel-eslint',
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 2017,
     sourceType: 'module',
     ecmaFeatures: {
       experimentalObjectRestSpread: true
     }
   },
-  extends: 'eslint:recommended',
+  extends: [
+    'eslint:recommended',
+    'plugin:ember/recommended'
+  ],
   env: {
     'browser': true,
   },
@@ -21,4 +25,22 @@ module.exports = {
     'one-var': ['error', 'never'],
     'indent': ['error', 2]
   },
+  overrides: [
+	  // node files
+	  {
+		  files: [
+			  'testem.js',
+			  'ember-cli-build.js',
+			  'config/**/*.js'
+		  ],
+		  parserOptions: {
+			  sourceType: 'script',
+			  ecmaVersion: 2015
+		  },
+		  env: {
+			  browser: false,
+			  node: true
+		  }
+	  }
+  ]
 };

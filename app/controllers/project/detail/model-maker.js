@@ -1,13 +1,16 @@
 /* global require */
-import Ember from 'ember';
+import { alias } from '@ember/object/computed';
+
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+import { computed } from '@ember/object';
+import { camelize } from '@ember/string';
 
 const path = require('path');
 
-const {inject:{service}, computed, String:{camelize}} = Ember;
-
-export default Ember.Controller.extend({
+export default Controller.extend({
   commander: service(),
-  project: computed.alias('model'),
+  project: alias('model'),
 
   models: [{
     name: '',

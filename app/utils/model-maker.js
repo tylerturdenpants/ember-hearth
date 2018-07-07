@@ -1,6 +1,4 @@
-import Ember from 'ember';
-
-const {String:{dasherize}} = Ember;
+import { dasherize } from '@ember/string';
 
 function attrToArg(attr) {
   const hasRelationship = ['belongsTo', 'hasMany'].indexOf(attr.transform) !== -1;

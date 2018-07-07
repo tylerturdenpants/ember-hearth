@@ -1,6 +1,6 @@
-import Ember from 'ember';
-
-const {inject, RSVP, assert} = Ember;
+import Service, { inject as service } from '@ember/service';
+import RSVP from 'rsvp';
+import { assert } from '@ember/debug';
 
 function buildResolveFn(resolveMapName) {
   return function (ev, cmd) {
@@ -12,9 +12,9 @@ function buildResolveFn(resolveMapName) {
   };
 }
 
-export default Ember.Service.extend({
-  ipc: inject.service(),
-  store: inject.service(),
+export default Service.extend({
+  ipc: service(),
+  store: service(),
 
   _stopResolveMap: {},
   _startResolveMap: {},

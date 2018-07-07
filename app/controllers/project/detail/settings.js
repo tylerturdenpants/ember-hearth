@@ -1,6 +1,10 @@
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
 import Ember from 'ember';
 
-const {$:{extend}, inject:{service}} = Ember;
+const {
+  $:{extend}
+} = Ember;
 
 const DEFAULT_CLI_CONFIG = {
   "disableAnalytics": false,
@@ -14,7 +18,7 @@ const DEFAULT_CLI_CONFIG = {
 };
 const CLI_FIELDS = Object.keys(DEFAULT_CLI_CONFIG);
 
-export default Ember.Controller.extend({
+export default Controller.extend({
   ipc: service(),
 
   reset(){

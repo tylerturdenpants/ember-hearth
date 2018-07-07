@@ -1,9 +1,7 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
 import InstallRow from './install-row';
 import layout from '../templates/components/install-row';
 import { v4 } from 'uuid';
-
-const {inject:{service}} = Ember;
 
 export default InstallRow.extend({
   layout,

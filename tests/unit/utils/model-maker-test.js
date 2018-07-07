@@ -1,5 +1,5 @@
-import {attrToArg} from 'ember-hearth/utils/model-maker';
-import {module, test} from 'qunit';
+import { attrToArg } from 'ember-hearth/utils/model-maker';
+import { module, test } from 'qunit';
 
 module('Unit | Utility | model maker');
 

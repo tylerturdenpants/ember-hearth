@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import Service from '@ember/service';
 let electron = requireNode('electron');
 
 let fields = Object.keys(electron).reduce((all, key) => {
@@ -6,4 +6,4 @@ let fields = Object.keys(electron).reduce((all, key) => {
   return all;
 }, {});
 
-export default Ember.Service.extend(fields);
+export default Service.extend(fields);

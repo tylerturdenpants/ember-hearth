@@ -1,11 +1,12 @@
-import Ember from 'ember';
+import { alias } from '@ember/object/computed';
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+import { get, computed } from '@ember/object';
 import { v4 } from 'uuid';
 
-const {inject:{service}, computed, get} = Ember;
-
-export default Ember.Controller.extend({
+export default Controller.extend({
   commander: service(),
-  project: computed.alias('model'),
+  project: alias('model'),
 
   assetSizes: computed('assetSizesCommand.succeeded', function(){
     if (this.get('assetSizesCommand.succeeded')) {

@@ -1,14 +1,14 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import { alias } from '@ember/object/computed';
+import Controller from '@ember/controller';
 import { v4 } from 'uuid';
 
-const {inject, computed} = Ember;
+export default Controller.extend({
+  ipc: service(),
+  store: service(),
+  commander: service(),
 
-export default Ember.Controller.extend({
-  ipc: inject.service(),
-  store: inject.service(),
-  commander: inject.service(),
-
-  project: computed.alias('model'),
+  project: alias('model'),
 
   actions: {
     removeProject(){

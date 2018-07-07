@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
+import Route from '@ember/routing/route';
+import RSVP from 'rsvp';
+import { assign } from '@ember/polyfills';
 
-const {RSVP, assign} = Ember;
-
-export default Ember.Route.extend({
+export default Route.extend({
   queryParams: {
     packageQuery: {
       refreshModel: true
@@ -23,7 +24,7 @@ export default Ember.Route.extend({
     let packages;
     if (packageQuery.length === 0) {
       const dependencies = this.projectDependencies(this.modelFor('project.detail'));
-      packages = RSVP.resolve(Object.keys(dependencies).map(dependency => Ember.Object.create({
+      packages = RSVP.resolve(Object.keys(dependencies).map(dependency => EmberObject.create({
         name: dependency,
         description: '',
         link: `https://www.npmjs.com/package/${dependency}`,

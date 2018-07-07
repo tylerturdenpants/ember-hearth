@@ -1,9 +1,7 @@
-import Ember from 'ember';
+import Service, { inject as service } from '@ember/service';
 let electron = requireNode('electron');
 
-const {inject:{service}} = Ember;
-
-export default Ember.Service.extend({
+export default Service.extend({
   store: service(),
 
   on(name, callback){
