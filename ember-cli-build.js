@@ -19,12 +19,12 @@ module.exports = function(defaults) {
   // modules that you would like to import into your application
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
-
-  app.import(app.bowerDirectory + '/semantic/dist/semantic.min.css');
-  app.import(app.bowerDirectory + "/semantic/dist/themes/default/assets/fonts/icons.eot", { destDir: "assets/themes/default/assets/fonts" });
-  app.import(app.bowerDirectory + "/semantic/dist/themes/default/assets/fonts/icons.svg", { destDir: "assets/themes/default/assets/fonts" });
-  app.import(app.bowerDirectory + "/semantic/dist/themes/default/assets/fonts/icons.ttf", { destDir: "assets/themes/default/assets/fonts" });
-  app.import(app.bowerDirectory + "/semantic/dist/themes/default/assets/fonts/icons.woff", { destDir: "assets/themes/default/assets/fonts" });
+  //
+  app.import('vendor/semantic/dist/semantic.min.css');
+  app.import("vendor/semantic/dist/themes/default/assets/fonts/icons.eot", { destDir: "assets/themes/default/assets/fonts" });
+  app.import("vendor/semantic/dist/themes/default/assets/fonts/icons.svg", { destDir: "assets/themes/default/assets/fonts" });
+  app.import("vendor/semantic/dist/themes/default/assets/fonts/icons.ttf", { destDir: "assets/themes/default/assets/fonts" });
+  app.import("vendor/semantic/dist/themes/default/assets/fonts/icons.woff", { destDir: "assets/themes/default/assets/fonts" });
 
   return app.toTree();
 };
